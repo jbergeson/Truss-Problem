@@ -10,6 +10,8 @@ class truss(ExplicitComponent):
 
         self.add_output("sigma", val = 0.)
 
+        # self.declare_partials("sigma", "A")
+        # self.declare_partials("sigma", "P")
         self.declare_partials("sigma", "A")
         self.declare_partials("sigma", "P")
     
@@ -25,18 +27,16 @@ class truss(ExplicitComponent):
         A = inputs["A"]
         P = inputs["P"]
 
-        J["sigma", "A"] = -P / (A ** 2)
-        if (P > 0):
-            J["sigma", "P"] = 1 / A
-        else:
-            J["sigma", "P"] = -1 / A
+        J["sigma", "A"] = -P / (1000000 * A ** 2)
+        J["sigma", "P"] = 1 / (A * 1000000)
+
 
 class Truss_Analysis(Group):
     
     def setup(self):
         
         #F is in N, A is in m^2, L is in m, and sigma is in MPa
-        F = 4000000
+        F = 4
         indeps = self.add_subsystem("indeps", IndepVarComp())
         indeps.add_output("P1", -F)
         indeps.add_output("P2", F)
