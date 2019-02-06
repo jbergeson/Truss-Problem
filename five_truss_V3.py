@@ -74,8 +74,6 @@ class Truss_Analysis(Group):
         self.connect("cycle.node1.force2", ["cycle.node2.force0", "truss2.P"])
         self.connect("cycle.node1.force3", ["cycle.node3.force1", "truss3.P"])
         self.connect("cycle.node2.force1", ["cycle.node3.force2", "truss4.P"])
-        self.connect("node2.new_truss 2", ["truss4.P"])
-        self.connect("node3.new_truss 1", ["truss5.P"])
         
         cycle.nonlinear_solver = NonlinearBlockGS()
 

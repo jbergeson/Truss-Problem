@@ -33,20 +33,20 @@ class truss(ExplicitComponent):
 class Node(ExplicitComponent):
     
     def initialize(self):
-        self.options("n_forces")
-        self.options("n_external")
+        self.options.declare("n_forces")
+        self.options.declare("n_external")
 
     def setup(self):
         
         for n in range(self.options["n_forces"]):
-            n_force = "force{}".format(n - 1)
-            n_direction = "direction{}".format(n - 1)
+            n_force = "force{}".format(n)
+            n_direction = "direction{}".format(n)
             self.add_input(n_direction, units = "rad", desc = "Direction of nth force on node")
             self.add_output(n_force, units = "N", desc = "Magnitude of nth force on node")
 
         for n in range(self.options["n_external"]):
-            force = "external_force{}".format(n - 1)
-            direction = "external_direction{}".format(n - 1)
+            force = "external_force{}".format(n)
+            direction = "external_direction{}".format(n)
             self.add_input(force, units = "N", desc = "Magnitude of external force applied to node")
             self.add_input(direction, units = "rad", desc = "Direction of external force applied to node")
 
@@ -60,17 +60,17 @@ class Node(ExplicitComponent):
         residuals["x"] = 0
         residuals["y"] = 0
         for n in range(self.options["n_forces"]):
-            residuals["x"] += outputs["force{}".format(n - 1)] * math.cos(inputs["direction{}".format(n - 1)])
-            residuals["y"] += outputs["force{}".format(n - 1)] * math.sin(inputs["direction{}".format(n - 1)])
+            residuals["x"] += outputs["force{}".format(n)] * math.cos(inputs["direction{}".format(n)])
+            residuals["y"] += outputs["force{}".format(n)] * math.sin(inputs["direction{}".format(n)])
         
         for m in range(self.options["n_external"]):
-            residuals["x"] += inputs["external_force{}".format(m - 1)] * math.cos(inputs["external_direction{}".format(m - 1)])
-            residuals["y"] += inputs["external_force{}".formal(m - 1)] * math.sin(inputs["external_direction{}".format(m - 1)])
+            residuals["x"] += inputs["external_force{}".format(m)] * math.cos(inputs["external_direction{}".format(m)])
+            residuals["y"] += inputs["external_force{}".formal(m)] * math.sin(inputs["external_direction{}".format(m)])
             
     def linearize(inputs, outputs, partials):
         for n in range(self.options["n_forces"]):
-            n_force = "force{}".format(n - 1)
-            n_direction = "direction{}".format(n - 1)
+            n_force = "force{}".format(n)
+            n_direction = "direction{}".format(n)
             partials["x", n_force] = math.cos(inputs[n_direction])
             partials["x", n_direction] = -outputs[n_force] * math.sin(inputs[n_direction])
             partials["y", n_force] = math.sin(inputs[n_direction])
