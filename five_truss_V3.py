@@ -1,6 +1,6 @@
 import math
 import numpy as np 
-from truss_V2 import truss, Node
+from truss_V3 import truss, Node
 from openmdao.api import ExplicitComponent, Problem, Group, IndepVarComp, ExecComp, NonlinearBlockGS, NewtonSolver, DirectSolver, ScipyOptimizeDriver
 
 class Truss_Analysis(Group):
@@ -27,67 +27,76 @@ class Truss_Analysis(Group):
         indeps.add_output("ext", F, units = "N", desc = "Force applied to truss structure")
         indeps.add_output("ext_direction", math.pi * 3 / 2, units = "rad", desc = "Direction of force applied to truss structure")
 
+        indeps.add_output("A0")
         indeps.add_output("A1")
         indeps.add_output("A2")
         indeps.add_output("A3")
         indeps.add_output("A4")
-        indeps.add_output("A5")
         indeps.add_output("L1")
         
-        self.add_subsystem("node0", Node(n_forces = 4, n_external = 0))
-        self.add_subsystem("node1", Node(n_forces = 4, n_external = 0))
-        self.add_subsystem("node2", Node(n_forces = 2, n_external = 1))
-        self.add_subsystem("node3", Node(n_forces = 3, n_external = 0))
+        # self.add_subsystem("node0", Node(n_forces = 4, n_external = 0))
+        # self.add_subsystem("node1", Node(n_forces = 4, n_external = 0))
+        # self.add_subsystem("node2", Node(n_forces = 2, n_external = 1))
+        # self.add_subsystem("node3", Node(n_forces = 3, n_external = 0))
+        cycle = self.add_subsystem("cycle", Group())
+        cycle.add_subsystem("node0", Node(n_forces = 4, n_external = 0))
+        cycle.add_subsystem("node1", Node(n_forces = 4, n_external = 0))
+        cycle.add_subsystem("node2", Node(n_forces = 2, n_external = 1))
+        cycle.add_subsystem("node3", Node(n_forces = 3, n_external = 0))
         self.add_subsystem("truss0", truss())
         self.add_subsystem("truss1", truss())
         self.add_subsystem("truss2", truss())
         self.add_subsystem("truss3", truss())
         self.add_subsystem("truss4", truss())
 
-        self.connect("indeps.x_reaction_n1", "node1.known_force 1")
-        self.connect("indeps.y_reaction_n1", "node1.known_force 2")
-        self.connect("indeps.x_reaction_direction_n1", "node1.old_direction 1")
-        self.connect("indeps.y_reaction_direction_n1", "node1.old_direction 2")
-        self.connect("indeps.truss1_n1", "node1.new_direction 1")
-        self.connect("indeps.truss2_n1", "node1.new_direction 2")
-        
-        self.connect("indeps.reaction_n2", "node2.known_force 1")
-        self.connect("indeps.reaction_direction_n2", "node2.old_direction 1")
-        self.connect("node1.new_truss 2", "node2.known_force 2")
-        self.connect("indeps.truss2_n2", "node2.old_direction 2")
-        self.connect("indeps.truss3_n2", "node2.new_direction 1")
-        self.connect("indeps.truss4_n2", "node2.new_direction 2")
-
-        self.connect("node2.new_truss 2", "node3.known_force 1")
-        self.connect("indeps.truss4_n3", "node3.old_direction 1")
-        self.connect("indeps.F", "node3.known_force 2")
-        self.connect("indeps.F_direction", "node3.old_direction 2")
-        self.connect("indeps.truss5_n3", "node3.new_direction 1")
-        
-        self.connect("node1.new_truss 1", ["truss1.P"])
-        self.connect("node1.new_truss 2", ["truss2.P"])
-        self.connect("node2.new_truss 1", ["truss3.P"])
+        #Node 0 connections
+        self.connect("indeps.n0_x_reaction", "cycle.node0.direction0")
+        self.connect("indeps.n0_y_reaction", "cycle.node0.direction1")
+        self.connect("indeps.n0_truss0", "cycle.node0.direction2")
+        self.connect("indeps.n0_truss1", "cycle.node0.direction3")
+        #Node 1 connections
+        self.connect("indeps.n1_x_reaction", "cycle.node1.direction0")
+        self.connect("indeps.n1_truss1", "cycle.node1.direction1")
+        self.connect("indeps.n1_truss2", "cycle.node1.direction2")
+        self.connect("indeps.n1_truss3", "cycle.node1.direction3")
+        #Node 2 connections
+        self.connect("indeps.n2_truss2", "cycle.node2.direction0")
+        self.connect("indeps.n2_truss4", "cycle.node2.direction1")
+        self.connect("indeps.ext_direction", "cycle.node2.external_direction0")
+        self.connect("indeps.ext", "cycle.node2.external_force0")
+        #Node 3 connections
+        self.connect("indeps.n3_truss0", "cycle.node3.direction0")
+        self.connect("indeps.n3_truss3", "cycle.node3.direction1")
+        self.connect("indeps.n3_truss4", "cycle.node3.direction2")
+        #Inter-node connections
+        self.connect("cycle.node0.force3", ["cycle.node1.force1", "truss1.P"])
+        self.connect("cycle.node0.force2", ["cycle.node3.force0", "truss0.P"])
+        self.connect("cycle.node1.force2", ["cycle.node2.force0", "truss2.P"])
+        self.connect("cycle.node1.force3", ["cycle.node3.force1", "truss3.P"])
+        self.connect("cycle.node2.force1", ["cycle.node3.force2", "truss4.P"])
         self.connect("node2.new_truss 2", ["truss4.P"])
         self.connect("node3.new_truss 1", ["truss5.P"])
         
-        self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A1 + A2 + A3 + A4 + A5)", A1 = 0.0, A2 = 0.0, A3 = 0.0, A4 = 0.0, A5 = 0.0, L1 = 1.0))
+        cycle.nonlinear_solver = NonlinearBlockGS()
+
+        self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)", A0 = 0.0, A1 = 0.0, A2 = 0.0, A3 = 0.0, A4 = 0.0, L1 = 1.0))
+        self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con1", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con5", ExecComp("con = 400 - abs(sigma)"))
 
         self.connect("indeps.L1", ["obj_cmp.L1"])
+        self.connect("truss0.sigma", ["con0.sigma"])
         self.connect("truss1.sigma", ["con1.sigma"])
         self.connect("truss2.sigma", ["con2.sigma"])
         self.connect("truss3.sigma", ["con3.sigma"])
         self.connect("truss4.sigma", ["con4.sigma"])
-        self.connect("truss5.sigma", ["con5.sigma"])
+        self.connect("indeps.A0", ["truss0.A", "obj_cmp.A0"])
         self.connect("indeps.A1", ["truss1.A", "obj_cmp.A1"])
         self.connect("indeps.A2", ["truss2.A", "obj_cmp.A2"])
         self.connect("indeps.A3", ["truss3.A", "obj_cmp.A3"])
         self.connect("indeps.A4", ["truss4.A", "obj_cmp.A4"])
-        self.connect("indeps.A5", ["truss5.A", "obj_cmp.A5"])
 
 if __name__ == "__main__":
 
@@ -98,17 +107,17 @@ if __name__ == "__main__":
     prob.driver.options["optimizer"] = "SLSQP"
     # prob.driver.options["tol"] = 1e-8
 
+    prob.model.add_design_var("indeps.A0", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A1", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A2", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A3", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A4", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A5", lower = 0.001, upper = 100)
     prob.model.add_objective("obj_cmp.obj")
+    prob.model.add_constraint("con0.con", lower = 0)
     prob.model.add_constraint("con1.con", lower = 0)
     prob.model.add_constraint("con2.con", lower = 0)
     prob.model.add_constraint("con3.con", lower = 0)
     prob.model.add_constraint("con4.con", lower = 0)
-    prob.model.add_constraint("con5.con", lower = 0)
 
     prob.setup()
     # prob.check_partials(compact_print = True)
@@ -119,6 +128,8 @@ if __name__ == "__main__":
     prob.run_driver()
 
     print("minimum found at")
+    print("A0 = ", prob["indeps.A0"])
+    print("truss0.P", prob["truss0.P"])
     print("A1 = ", prob["indeps.A1"])
     print("truss1.P", prob["truss1.P"])
     print("A2 = ", prob["indeps.A2"])
@@ -127,5 +138,6 @@ if __name__ == "__main__":
     print("truss3.P", prob["truss3.P"])
     print("A4 = ", prob["indeps.A4"])
     print("truss4.P", prob["truss4.P"])
-    print("A5 = ", prob["indeps.A5"])
-    print("truss5.P", prob["truss5.P"])
+    print("n0_x_reaction", prob["indeps.n0_x_reaction"])
+    print("n0_y_reaction", prob["indeps.n0_y_reaction"])
+    print("n1_x_reaction", prob["indeps.n1_x_reaction"])
