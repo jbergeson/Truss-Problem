@@ -1,7 +1,7 @@
 import math
 import numpy as np 
 from truss_V3 import truss, Node
-from openmdao.api import ExplicitComponent, Problem, Group, IndepVarComp, ExecComp, NonlinearBlockGS, NewtonSolver, DirectSolver, ScipyOptimizeDriver
+from openmdao.api import ExplicitComponent, Problem, Group, IndepVarComp, ExecComp, NonlinearBlockGS, NewtonSolver, DirectSolver, ScipyOptimizeDriver, ArmijoGoldsteinLS
 
 class Truss_Analysis(Group):
     
@@ -75,7 +75,10 @@ class Truss_Analysis(Group):
         self.connect("cycle.node1.force2_new", ["cycle.node3.force1_old", "truss3.P"])
         self.connect("cycle.node2.force0_new", ["cycle.node3.force2_old", "truss4.P"])
         
-        cycle.nonlinear_solver = NonlinearBlockGS()
+        cycle.nonlinear_solver = NewtonSolver()
+        self.nonlinear_solver.options["iprint"] = 2
+        cycle.linear_solver = DirectSolver()
+
 
         self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)", A0 = 0.0, A1 = 0.0, A2 = 0.0, A3 = 0.0, A4 = 0.0, L1 = 1.0))
         self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
@@ -118,7 +121,7 @@ if __name__ == "__main__":
     prob.model.add_constraint("con4.con", lower = 0)
 
     prob.setup()
-    # prob.check_partials(compact_print = True)
+    prob.check_partials(compact_print = True)
     prob.set_solver_print(level = 0)
 
     prob.model.approx_totals()
