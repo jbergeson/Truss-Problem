@@ -46,20 +46,12 @@ class Node(ImplicitComponent):
             n_direction = "direction{}_out".format(n)
             self.add_input(n_direction, units = "rad", desc = "Direction of nth force out of node")
             self.add_output(n_force, units = "N", desc = "Magnitude of nth force out of node")
-            # self.declare_partials("F_x", n_force, method = "fd")
-            # self.declare_partials("F_x", n_direction, method = "fd")
-            # self.declare_partials("F_y", n_force, method = "fd")
-            # self.declare_partials("F_y", n_direction, method = "fd")
 
         for n in range(self.options["n_forces_in"]):
             n_force = "force{}_in".format(n)
             n_direction = "direction{}_in".format(n)
             self.add_input(n_direction, units = "rad", desc = "Direction of nth force into node")
             self.add_input(n_force, units = "N", desc = "Magnitude of nth force into node")
-            # self.declare_partials("F_x", n_force, method = "fd")
-            # self.declare_partials("F_x", n_direction, method = "fd")
-            # self.declare_partials("F_y", n_force, method = "fd")
-            # self.declare_partials("F_y", n_direction, method = "fd")
 
 
         for n in range(self.options["n_external_forces"]):
@@ -67,32 +59,14 @@ class Node(ImplicitComponent):
             direction = "external_direction{}".format(n)
             self.add_input(force, units = "N", desc = "Magnitude of external force applied to node")
             self.add_input(direction, units = "rad", desc = "Direction of external force applied to node")
+        
         for n in range(self.options["n_forces_out"]):
             n_force = "force{}_out".format(n)
             self.declare_partials(n_force, "direction*")
             self.declare_partials(n_force, "force*")
-            if (self.options["n_external"] > 0):
+            if (self.options["n_external_forces"] > 0):
                 self.declare_partials(n_force, "external_direction*")
                 self.declare_partials(n_force, "external_force*")
-        # for n in range(self.options["n_new_forces"]):
-        #     n_force = "force{}_new".format(n)
-        #     n_direction = "direction{}_new".format(n)
-        #     self.declare_partials("F_x", n_force, val = math.cos(inputs[n_direction]))
-        #     self.declare_partials("F_x", n_direction, val = -outputs[n_force] * math.sin(inputs[n_direction]))
-        #     self.declare_partials("F_y", n_force, val = math.sin(inputs[n_direction]))
-        #     self.declare_partials("F_y", n_direction, val = outputs[n_force] * math.cos(inputs[n_direction]))
-
-        # for n in range(self.options["n_old_forces"]):
-        #     n_force = "force{}_old".format(n)
-        #     n_direction = "direction{}_old".format(n)
-        #     self.declare_partials("F_x", n_force, val = math.cos(inputs[n_direction]))
-        #     self.declare_partials("F_x", n_direction, val = -inputs[n_force] * math.sin(inputs[n_direction]))
-        #     self.declare_partials("F_y", n_force, val = math.sin(inputs[n_direction]))
-        #     self.declare_partials("F_y", n_direction, val = inputs[n_force] * math.cos(inputs[n_direction]))
-        # # self.declare_partials("F_x", "force*", method = "fd")
-        # self.declare_partials("F_x", "direction*", method = "fd")
-        # self.declare_partials("F_y", "force*", method = "fd")
-        # self.declare_partials("F_y", "direction*", method = "fd")
 
     def apply_nonlinear(self, inputs, outputs, residuals):
         dir = "x"
@@ -138,8 +112,8 @@ class Node(ImplicitComponent):
             partials["force{}_out".format(x), n_direction] =  -outputs[n_force] * math.sin(inputs[n_direction])
 
         for n in range(self.options["n_forces_in"]):
-            n_force = "force{}_out".format(n)
-            n_direction = "direction{}_out".format(n)
+            n_force = "force{}_in".format(n)
+            n_direction = "direction{}_in".format(n)
             partials["force{}_out".format(x), n_force] =  math.cos(inputs[n_direction])
             partials["force{}_out".format(x), n_direction] =  -inputs[n_force] * math.sin(inputs[n_direction])
 
@@ -157,8 +131,8 @@ class Node(ImplicitComponent):
                 partials["force{}_out".format(y), n_direction] =  -outputs[n_force] * math.sin(inputs[n_direction])
 
             for n in range(self.options["n_forces_in"]):
-                n_force = "force{}_out".format(n)
-                n_direction = "direction{}_out".format(n)
+                n_force = "force{}_in".format(n)
+                n_direction = "direction{}_in".format(n)
                 partials["force{}_out".format(y), n_force] =  math.cos(inputs[n_direction])
                 partials["force{}_out".format(y), n_direction] =  -inputs[n_force] * math.sin(inputs[n_direction])
 
