@@ -58,8 +58,8 @@ class Truss_Analysis(Group):
         #Node 2 connections
         self.connect("indeps.n2_truss2", "cycle.node2.direction0_out")
         self.connect("indeps.n2_truss4", "cycle.node2.direction1_out")
-        self.connect("indeps.ext_direction", "cycle.node2.external_direction0")
-        self.connect("indeps.ext", "cycle.node2.external_force0")
+        self.connect("indeps.ext_direction", "cycle.node2.direction0_external")
+        self.connect("indeps.ext", "cycle.node2.force0_external")
         #Node 3 connections
         self.connect("indeps.n3_truss0", "cycle.node3.direction0_out")
         self.connect("indeps.n3_truss3", "cycle.node3.direction1_out")
@@ -135,6 +135,6 @@ if __name__ == "__main__":
     print("truss3.P", prob["truss3.P"])
     print("A4 = ", prob["indeps.A4"])
     print("truss4.P", prob["truss4.P"])
-    print("n0_x_reaction", prob["indeps.n0_x_reaction"])
-    print("n0_y_reaction", prob["indeps.n0_y_reaction"])
-    print("n1_x_reaction", prob["indeps.n1_x_reaction"])
+    print("n0_x_reaction", prob["cycle.node0.force0_out"])
+    print("n0_y_reaction", prob["cycle.node0.force1_out"])
+    print("n1_x_reaction", prob["cycle.node1.force0_out"])
