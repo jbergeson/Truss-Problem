@@ -37,28 +37,25 @@ class Node(ImplicitComponent):
         self.options.declare("n_external_forces", default = 0)
 
     def setup(self):
-
-        if (self.options["n_forces_out"] > 2):
-            print("This node is undetermined, required forces exceeds number of equations available.")
         
         for n in range(self.options["n_forces_out"]):
             n_force = "force{}_out".format(n)
             n_direction = "direction{}_out".format(n)
-            self.add_input(n_direction, units = "rad", desc = "Direction of nth force out of node")
-            self.add_output(n_force, units = "N", desc = "Magnitude of nth force out of node")
+            self.add_input(n_direction, val = 1., units = "rad", desc = "Direction of nth force out of node")
+            self.add_output(n_force, val = 1., units = "N", desc = "Magnitude of nth force out of node")
 
         for n in range(self.options["n_forces_in"]):
             n_force = "force{}_in".format(n)
             n_direction = "direction{}_in".format(n)
-            self.add_input(n_direction, units = "rad", desc = "Direction of nth force into node")
+            self.add_input(n_direction, val = 1., units = "rad", desc = "Direction of nth force into node")
             self.add_input(n_force, units = "N", desc = "Magnitude of nth force into node")
 
 
         for n in range(self.options["n_external_forces"]):
             force = "external_force{}".format(n)
             direction = "external_direction{}".format(n)
-            self.add_input(force, units = "N", desc = "Magnitude of external force applied to node")
-            self.add_input(direction, units = "rad", desc = "Direction of external force applied to node")
+            self.add_input(force, val = 1., units = "N", desc = "Magnitude of external force applied to node")
+            self.add_input(direction, val = 1., units = "rad", desc = "Direction of external force applied to node")
         
         for n in range(self.options["n_forces_out"]):
             n_force = "force{}_out".format(n)

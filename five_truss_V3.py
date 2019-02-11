@@ -73,7 +73,7 @@ class Truss_Analysis(Group):
         
         cycle.nonlinear_solver = NewtonSolver()
         self.nonlinear_solver.options["iprint"] = 2
-        # cycle.linear_solver = DirectSolver()
+        cycle.linear_solver = DirectSolver()
 
 
         self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)", A0 = 0.0, A1 = 0.0, A2 = 0.0, A3 = 0.0, A4 = 0.0, L1 = 1.0))
