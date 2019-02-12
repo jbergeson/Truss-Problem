@@ -7,16 +7,22 @@ class Beam(ImplicitComponent):
         
         self.add_input("force0", val = 1., units = "N", desc = "Force on 0th end of beam")
         self.add_input("force1", val = 1., units = "N", desc = "Force on 1st end of beam")
+        self.add_input("A", val = 1., units = "m**2", desc = "Force on 1st end of beam")
         self.add_output("beam_force", val = 1., units = "N", desc = "Force in the beam")
 
-        # self.add_output('sigma', val=1, units='MPa')
+        self.add_output('sigma', val=1, units='MPa')
 
-        self.declare_partials("beam_force", "force*", method = "fd")
+        self.declare_partials("beam_force", "force*")
+        self.declare_partials("sigma", "beam_force", method='fd')
 
     def apply_nonlinear(self, inputs, outputs, residuals):
         residuals["beam_force"] = 0
         residuals["beam_force"] += inputs["force0"]
         residuals["beam_force"] -= inputs["force1"]
+        residuals['sigma'] = outputs['sigma'] - outputs['beam_force']/(1e6*inputs['A'])
+
+    def solve_nonlinear(self, inputs, outputs):
+        outputs['sigma'] =  outputs['beam_force']/(1e6*inputs['A'])
 
     def linearize(self, inputs, outputs, partials):
         partials["beam_force", "force0"] = 1

@@ -84,16 +84,17 @@ class Truss_Analysis(Group):
         
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
+        cycle.nonlinear_solver.options['solve_subsystems'] = True
         cycle.nonlinear_solver.options["iprint"] = 2
         cycle.linear_solver = DirectSolver()
 
 
         self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)"))
-        self.add_subsystem("con0", ExecComp("con = 400000000 - abs(P / A)"))
-        self.add_subsystem("con1", ExecComp("con = 400000000 - abs(P / A)"))
-        self.add_subsystem("con2", ExecComp("con = 400000000 - abs(P / A)"))
-        self.add_subsystem("con3", ExecComp("con = 400000000 - abs(P / A)"))
-        self.add_subsystem("con4", ExecComp("con = 400000000 - abs(P / A)"))
+        self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con1", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
 
         self.connect("indeps.L1", ["obj_cmp.L1"])
         self.connect("cycle.beam0.beam_force", ["con0.P"])
