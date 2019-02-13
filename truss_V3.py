@@ -45,23 +45,23 @@ class Node(ImplicitComponent):
 
         for n in range(self.options["n_loads"] + self.options["n_reactions"]):
 
-            n_load_out = "load{}_out".format(n)
-            n_direction = "direction{}".format(n)
+            n_load_out = f"load{n}_out"
+            n_direction = f"direction{n}"
             self.add_output(n_load_out, units = "N", desc = "Output load on node")
             self.add_input(n_direction, units = "rad", desc = "Direction of load on node")
             
         for n in range(self.options["n_reactions"], (self.options["n_reactions"] + self.options["n_loads"])):
-            n_load_in = "load{}_in".format(n)
+            n_load_in = f"load{n}_in"
             self.add_input(n_load_in, units = "N", desc = "Input load on node")
 
         for m in range(self.options["n_external_forces"]):
-            m_force = "force{}_ext".format(m)
-            m_direction = "direction{}_ext".format(m)
+            m_force = f"force{m}_ext"
+            m_direction = f"direction{m}_ext"
             self.add_input(m_force, units = "N", desc = "External force on node")
             self.add_input(m_direction, units = "rad", desc = "Direction of external force on node")
 
         # for i in range(self.options["n_loads"]):
-        #     n_load_out = "load{}_out".format(i)
+        #     n_load_out = f"load{i}_out"
         #     self.declare_partials(n_load_out, "load*", method = "fd")
         #     self.declare_partials(n_load_out, "direction*", method = "fd")
         #     if (self.options["n_external_forces"] > 0):
@@ -76,14 +76,14 @@ class Node(ImplicitComponent):
         residuals["load1_out"] = 0
         for n in range(self.options["n_loads"]+self.options['n_reactions']):
             
-            load = "load{}_out".format(n)
-            direction = "direction{}".format(n)
+            load = f"load{n}_out"
+            direction = f"direction{n}"
             residuals["load0_out"] += outputs[load] * np.cos(inputs[direction])
             residuals["load1_out"] += outputs[load] * np.sin(inputs[direction])
         
         for m in range(self.options["n_external_forces"]):
-            force = "force{}_ext".format(m)
-            direction = "direction{}_ext".format(m)
+            force = f"force{m}_ext"
+            direction = f"direction{m}_ext"
             residuals["load0_out"] += inputs[force] * np.cos(inputs[direction])
             residuals["load1_out"] += inputs[force] * np.sin(inputs[direction])
 
@@ -98,16 +98,16 @@ class Node(ImplicitComponent):
         
     #     for n in range(self.options["n_loads"] + self.options["n_reactions"]):
 
-    #         load = "load{}_out".format(n)
-    #         direction = "direction{}".format(n)
+    #         load = f"load{n}_out"
+    #         direction = f"direction{n}"
     #         partials["load0_out", load] = np.cos(inputs[direction])
     #         partials["load0_out", direction] = -outputs[load] * np.sin(inputs[direction])
     #         partials["load1_out", load] = np.sin(inputs[direction])
     #         partials["load1_out", direction] = outputs[load] * np.cos(inputs[direction])
 
     #     for m in range(self.options["n_external_forces"]):
-    #         force = "force{}_ext".format(m)
-    #         direction = "direction{}_ext".format(m)
+    #         force = f"force{m}_ext"
+    #         direction = f"direction{m}_ext"
     #         partials["load0_out", force] = np.cos(inputs[direction])
     #         partials["load0_out", direction] = -inputs[force] * np.sin(inputs[direction])
     #         partials["load1_out", force] = np.sin(inputs[direction])
@@ -115,9 +115,9 @@ class Node(ImplicitComponent):
         
     #     i = 2
     #     while (i < self.options["n_loads"]):
-    #         load_out = "load{}_out".format(i)
-    #         load_in = "load{}_in".format(i)
-    #         direction = "direction{}".format(i)
+    #         load_out = f"load{i}_out"
+    #         load_in = f"load{i}_in"
+    #         direction = f"direction{i}"
     #         partials[load_out, load_out] = -inputs[load_in]
     #         partials[load_out, direction] = outputs[load_out]
     #         i += 1
