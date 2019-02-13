@@ -82,16 +82,18 @@ class Truss_Analysis(Group):
         self.connect("cycle.beam4.beam_force", ["cycle.node2.load1_in", "cycle.node3.load2_in"])
         
         cycle.nonlinear_solver = NewtonSolver()
-        self.nonlinear_solver.options["iprint"] = 2
+        cycle.nonlinear_solver.options['atol'] = 1e-7
+        cycle.nonlinear_solver.options['solve_subsystems'] = True
+        cycle.nonlinear_solver.options["iprint"] = 2
         cycle.linear_solver = DirectSolver()
 
 
-        self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)", A0 = 0., A1 = 0., A2 = 0., A3 = 0., A4 = 0., L1 = 1.))
-        self.add_subsystem("con0", ExecComp("con = 400 - abs(P / A)"))
-        self.add_subsystem("con1", ExecComp("con = 400 - abs(P / A)"))
-        self.add_subsystem("con2", ExecComp("con = 400 - abs(P / A)"))
-        self.add_subsystem("con3", ExecComp("con = 400 - abs(P / A)"))
-        self.add_subsystem("con4", ExecComp("con = 400 - abs(P / A)"))
+        self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A3 + A4)"))
+        self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con1", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
+        self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
 
         self.connect("indeps.L1", ["obj_cmp.L1"])
         self.connect("cycle.beam0.beam_force", ["con0.P"])
@@ -126,21 +128,25 @@ if __name__ == "__main__":
     prob.model.add_constraint("con4.con", lower = 0)
 
     prob.setup()
-    prob.check_partials(compact_print = True)
-    prob.set_solver_print(level = 0)
+    # prob.check_partials(compact_print = False)
+    # prob.check_totals()
+    # exit()
     prob.run_driver()
+    # prob.run_model()
+
+
 
     print("minimum found at")
     print("A0 = ", prob["indeps.A0"])
-    print("beam0.P", prob["beam0.beam_force"])
+    print("beam0.P", prob["cycle.beam0.beam_force"])
     print("A1 = ", prob["indeps.A1"])
-    print("beam1.P", prob["beam1.beam_force"])
+    print("beam1.P", prob["cycle.beam1.beam_force"])
     print("A2 = ", prob["indeps.A2"])
-    print("beam2.P", prob["beam2.beam_force"])
+    print("beam2.P", prob["cycle.beam2.beam_force"])
     print("A3 = ", prob["indeps.A3"])
-    print("beam3.P", prob["beam3.beam_force"])
+    print("beam3.P", prob["cycle.beam3.beam_force"])
     print("A4 = ", prob["indeps.A4"])
-    print("beam4.P", prob["beam4.beam_force"])
+    print("beam4.P", prob["cycle.beam4.beam_force"])
     print("n0_x_reaction", prob["cycle.node0.load0_out"])
     print("n0_y_reaction", prob["cycle.node0.load1_out"])
     print("n1_x_reaction", prob["cycle.node1.load1_out"])

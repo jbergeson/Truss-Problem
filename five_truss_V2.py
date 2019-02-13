@@ -115,6 +115,7 @@ prob.set_solver_print(level = 0)
 prob.model.approx_totals()
 
 prob.run_driver()
+# prob.run_model()
 
 print("minimum found at")
 print("A1 = ", prob["indeps.A1"])
