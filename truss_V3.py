@@ -43,16 +43,21 @@ class Node(ImplicitComponent):
 
     def setup(self):
 
-        for n in range(self.options["n_loads"] + self.options["n_reactions"]):
+        for n in range(self.options["n_loads"]):
 
-            n_load_out = f"load{n}_out"
-            n_direction = f"direction{n}"
+            n_load_out = f"load_out{n}"
+            n_direction = f"direction{n}_load"
+            n_load_in = f"load_in{n}"
             self.add_output(n_load_out, units = "N", desc = "Output load on node")
             self.add_input(n_direction, units = "rad", desc = "Direction of load on node")
-            
-        for n in range(self.options["n_reactions"], (self.options["n_reactions"] + self.options["n_loads"])):
-            n_load_in = f"load{n}_in"
             self.add_input(n_load_in, units = "N", desc = "Input load on node")
+
+        for n in range(self.options["n_reactions"]):
+
+            n_reaction = f"reaction{n}"
+            n_direction = f"direction{n}_reaction"
+            self.add_output(n_reaction, units = "N", desc = "Output load on node")
+            self.add_input(n_direction, units = "rad", desc = "Direction of load on node")
 
         for m in range(self.options["n_external_forces"]):
             m_force = f"force{m}_ext"
@@ -60,37 +65,86 @@ class Node(ImplicitComponent):
             self.add_input(m_force, units = "N", desc = "External force on node")
             self.add_input(m_direction, units = "rad", desc = "Direction of external force on node")
 
-        # for i in range(self.options["n_loads"]):
-        #     n_load_out = f"load{i}_out"
-        #     self.declare_partials(n_load_out, "load*", method = "fd")
-        #     self.declare_partials(n_load_out, "direction*", method = "fd")
+        # for i in range(self.options["n_reactions"]):
+
+        #     n_reaction = f"reaction{i}"
+        #     self.declare_partials(n_load_out, "load_out*", method = "cs")
+        #     self.declare_partials(n_load_out, "direction*", method = "cs")
+
+        #     if (self.options["n_reactions"] > 0):
+
+        #         self.declare_partials(n_load_out, "reaction*", method = "cs")
+            
         #     if (self.options["n_external_forces"] > 0):
 
-        #         self.declare_partials(n_load_out, "force*", method = "fd")
+        #         self.declare_partials(n_load_out, "force*", method = "cs")
+
+        # for n in range(2 - self.options["n_reactions"]):
+        #     n_load_out = f"load_out{n}"
+        #     self.declare_partials(n_load_out, "load_out*", method = "cs")
+        #     self.declare_partials(n_load_out, "direction*", method = "cs")
+            
+        #     if (self.options["n_reactions"] > 0):
+
+        #         self.declare_partials(n_load_out, "reaction*", method = "cs")
+            
+        #     if (self.options["n_external_forces"] > 0):
+
+        #         self.declare_partials(n_load_out, "*ext", method = "cs")
+
+        # for i in range((2 - self.options["n_reactions"]), self.options["n_loads"]):
+        #     n_load_out = f"load_out{i}"
+        #     n_load_in = f"load_in{i}"
+        #     self.declare_partials(n_load_out, n_load_out, method = "cs")
+        #     self.declare_partials(n_load_out, n_load_in, method = "cs")
+
 
         self.declare_partials('*', '*', method='cs')
 
     def apply_nonlinear(self, inputs, outputs, residuals):
 
-        residuals["load0_out"] = 0
-        residuals["load1_out"] = 0
-        for n in range(self.options["n_loads"]+self.options['n_reactions']):
+        if (self.options["n_reactions"] > 0):
             
-            load = f"load{n}_out"
-            direction = f"direction{n}"
-            residuals["load0_out"] += outputs[load] * np.cos(inputs[direction])
-            residuals["load1_out"] += outputs[load] * np.sin(inputs[direction])
+            if (self.options["n_reactions"] > 1):
+                
+                res0 = "reaction0"
+                res1 = "reaction1"
+            
+            else:
+                
+                res0 = "reaction0"
+                res1 = "load_out0"
+
+        else:
+            res0 = "load_out0"
+            res1 = "load_out1"
+            
+        residuals[res0] = 0
+        residuals[res1] = 0
+        for n in range(self.options["n_loads"]):
+            
+            load = f"load_out{n}"
+            direction = f"direction{n}_load"
+            residuals[res0] += outputs[load] * np.cos(inputs[direction])
+            residuals[res1] += outputs[load] * np.sin(inputs[direction])
+
+        for j in range(self.options["n_reactions"]):
+
+            reaction = f"reaction{j}"
+            direction = f"direction{j}_reaction"
+            residuals[res0] += outputs[reaction] * np.cos(inputs[direction])
+            residuals[res1] += outputs[reaction] * np.sin(inputs[direction])
         
         for m in range(self.options["n_external_forces"]):
             force = f"force{m}_ext"
             direction = f"direction{m}_ext"
-            residuals["load0_out"] += inputs[force] * np.cos(inputs[direction])
-            residuals["load1_out"] += inputs[force] * np.sin(inputs[direction])
+            residuals[res0] += inputs[force] * np.cos(inputs[direction])
+            residuals[res1] += inputs[force] * np.sin(inputs[direction])
 
         
-        for i in range(2,self.options["n_loads"]+self.options['n_reactions']):
-            load_in = f"load{i}_in"
-            load_out = f"load{i}_out"
+        for i in range((2 - self.options["n_reactions"]), self.options["n_loads"]):
+            load_in = f"load_in{i}"
+            load_out = f"load_out{i}"
             residuals[load_out] = outputs[load_out] - inputs[load_in]
             # print(self.pathname, load_out,  outputs[load_out] - inputs[load_in], residuals[load_out])
 
