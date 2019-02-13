@@ -7,7 +7,6 @@ class Truss_Analysis(Group):
     
     def setup(self):
         
-        #F is in N, A is in m^2, L is in m, and sigma is in MPa
         F = 4 * 10 ** 7
         
         indeps = self.add_subsystem("indeps", IndepVarComp())
@@ -113,7 +112,6 @@ if __name__ == "__main__":
 
     prob.driver = ScipyOptimizeDriver()
     prob.driver.options["optimizer"] = "SLSQP"
-    # prob.driver.options["tol"] = 1e-8
 
     prob.model.add_design_var("indeps.A0", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A1", lower = 0.001, upper = 100)
