@@ -127,8 +127,8 @@ if __name__ == "__main__":
     prob.model.add_constraint("con3.con", lower = 0)
     prob.model.add_constraint("con4.con", lower = 0)
 
-    prob.setup()
-    prob.check_partials(compact_print = True)
+    prob.setup(force_alloc_complex = True)
+    prob.check_partials(compact_print = True, method = "cs")
     # prob.check_totals()
     # exit()
     prob.run_driver()
