@@ -65,41 +65,38 @@ class Node(ImplicitComponent):
             self.add_input(m_force, units = "N", desc = "External force on node")
             self.add_input(m_direction, units = "rad", desc = "Direction of external force on node")
 
-        # for i in range(self.options["n_reactions"]):
+        for i in range(self.options["n_reactions"]):
 
-        #     n_reaction = f"reaction{i}"
-        #     self.declare_partials(n_load_out, "load_out*", method = "cs")
-        #     self.declare_partials(n_load_out, "direction*", method = "cs")
-
-        #     if (self.options["n_reactions"] > 0):
-
-        #         self.declare_partials(n_load_out, "reaction*", method = "cs")
+            n_reaction = f"reaction{i}"
+            self.declare_partials(n_reaction, "load_out*", method = "fd")
+            self.declare_partials(n_reaction, "direction*", method = "fd")
+            self.declare_partials(n_reaction, "reaction*", method = "fd")
             
-        #     if (self.options["n_external_forces"] > 0):
+            if (self.options["n_external_forces"] > 0):
 
-        #         self.declare_partials(n_load_out, "force*", method = "cs")
+                self.declare_partials(n_reaction, "force*", method = "fd")
 
-        # for n in range(2 - self.options["n_reactions"]):
-        #     n_load_out = f"load_out{n}"
-        #     self.declare_partials(n_load_out, "load_out*", method = "cs")
-        #     self.declare_partials(n_load_out, "direction*", method = "cs")
+        for n in range(2 - self.options["n_reactions"]):
+            n_load_out = f"load_out{n}"
+            self.declare_partials(n_load_out, "load_out*", method = "fd")
+            self.declare_partials(n_load_out, "direction*", method = "fd")
             
-        #     if (self.options["n_reactions"] > 0):
+            if (self.options["n_reactions"] > 0):
 
-        #         self.declare_partials(n_load_out, "reaction*", method = "cs")
+                self.declare_partials(n_load_out, "reaction*", method = "fd")
             
-        #     if (self.options["n_external_forces"] > 0):
+            if (self.options["n_external_forces"] > 0):
 
-        #         self.declare_partials(n_load_out, "*ext", method = "cs")
+                self.declare_partials(n_load_out, "*ext", method = "fd")
 
-        # for i in range((2 - self.options["n_reactions"]), self.options["n_loads"]):
-        #     n_load_out = f"load_out{i}"
-        #     n_load_in = f"load_in{i}"
-        #     self.declare_partials(n_load_out, n_load_out, method = "cs")
-        #     self.declare_partials(n_load_out, n_load_in, method = "cs")
+        for i in range((2 - self.options["n_reactions"]), self.options["n_loads"]):
+            n_load_out = f"load_out{i}"
+            n_load_in = f"load_in{i}"
+            self.declare_partials(n_load_out, n_load_out, method = "fd")
+            self.declare_partials(n_load_out, n_load_in, method = "fd")
 
 
-        self.declare_partials('*', '*', method='cs')
+        # self.declare_partials('*', '*', method='cs')
 
     def apply_nonlinear(self, inputs, outputs, residuals):
 
