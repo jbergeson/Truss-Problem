@@ -37,9 +37,8 @@ class Truss_Analysis(Group):
         cycle = self.add_subsystem("cycle", Group())
         cycle.add_subsystem("node0", Node(n_loads = 2, n_reactions = 2))
         cycle.add_subsystem("node1", Node(n_loads = 3, n_reactions = 1))
-        cycle.add_subsystem("node2", Node(n_loads = 3))
-        cycle.add_subsystem("node3", Node(n_loads = 2, n_external_forces = 1))
-        cycle.add_subsystem("node4", Node(n_loads = 4))
+        cycle.add_subsystem("node2", Node(n_loads = 2, n_external_forces = 1))
+        cycle.add_subsystem("node3", Node(n_loads = 3))
         cycle.add_subsystem("beam0", Beam())
         cycle.add_subsystem("beam1", Beam())
         cycle.add_subsystem("beam2", Beam())
@@ -58,41 +57,30 @@ class Truss_Analysis(Group):
         self.connect("indeps.n1_beam2", "cycle.node1.direction1_load")
         self.connect("indeps.n1_beam3", "cycle.node1.direction2_load")
         #Node 2 connections
-        self.connect("indeps.n2_beam2", "cycle.node2.direction0_load")
+        self.connect("indeps.n2_beam3", "cycle.node2.direction0_load")
         self.connect("indeps.n2_beam4", "cycle.node2.direction1_load")
-        self.connect("indeps.n2_beam6", "cycle.node2.direction2_load")
+        self.connect("indeps.ext", "cycle.node2.force0_ext")
+        self.connect("indeps.ext_direction", "cycle.node2.direction0_ext")
         #Node 3 connections
-        self.connect("indeps.n3_beam4", "cycle.node3.direction0_load")
-        self.connect("indeps.n3_beam5", "cycle.node3.direction1_load")
-        self.connect("indeps.ext", "cycle.node3.force0_ext")
-        self.connect("indeps.ext_direction", "cycle.node3.direction0_ext")
-        #Node 4 connections
-        self.connect("indeps.n4_beam0", "cycle.node4.direction0_load")
-        self.connect("indeps.n4_beam3", "cycle.node4.direction1_load")
-        self.connect("indeps.n4_beam5", "cycle.node4.direction2_load")
-        self.connect("indeps.n4_beam6", "cycle.node4.direction3_load")
+        self.connect("indeps.n3_beam0", "cycle.node3.direction0_load")
+        self.connect("indeps.n3_beam2", "cycle.node3.direction1_load")
+        self.connect("indeps.n3_beam4", "cycle.node3.direction2_load")
         #Inter-node connections
-        self.connect("cycle.node0.load_out0", "cycle.beam0.force0")#
-        self.connect("cycle.node0.load_out1", "cycle.beam1.force0")#
-        self.connect("cycle.node1.load_out0", "cycle.beam1.force1")#
-        self.connect("cycle.node1.load_out1", "cycle.beam2.force0")#
-        self.connect("cycle.node1.load_out2", "cycle.beam3.force0")#
-        self.connect("cycle.node2.load_out0", "cycle.beam2.force1")#
-        self.connect("cycle.node2.load_out1", "cycle.beam4.force0")#
-        self.connect("cycle.node2.load_out2", "cycle.beam6.force0")#
-        self.connect("cycle.node3.load_out0", "cycle.beam4.force1")#
-        self.connect("cycle.node3.load_out1", "cycle.beam5.force0")#
-        self.connect("cycle.node4.load_out0", "cycle.beam0.force1")#
-        self.connect("cycle.node4.load_out1", "cycle.beam3.force1")#
-        self.connect("cycle.node4.load_out2", "cycle.beam5.force1")#
-        self.connect("cycle.node4.load_out3", "cycle.beam6.force1")#
-        self.connect("cycle.beam0.beam_force", ["cycle.node0.load_in0", "cycle.node4.load_in0"])#
-        self.connect("cycle.beam1.beam_force", ["cycle.node0.load_in1", "cycle.node1.load_in0"])#
-        self.connect("cycle.beam2.beam_force", ["cycle.node1.load_in1", "cycle.node2.load_in0"])#
-        self.connect("cycle.beam3.beam_force", ["cycle.node1.load_in2", "cycle.node4.load_in1"])#
-        self.connect("cycle.beam4.beam_force", ["cycle.node2.load_in1", "cycle.node3.load_in0"])#
-        self.connect("cycle.beam5.beam_force", ["cycle.node3.load_in1", "cycle.node4.load_in2"])#
-        self.connect("cycle.beam6.beam_force", ["cycle.node2.load_in2", "cycle.node4.load_in3"])#
+        self.connect("cycle.node0.load_out0", "cycle.beam0.force0")
+        self.connect("cycle.node0.load_out1", "cycle.beam1.force0")
+        self.connect("cycle.node1.load_out0", "cycle.beam1.force1")
+        self.connect("cycle.node1.load_out1", "cycle.beam2.force0")
+        self.connect("cycle.node1.load_out2", "cycle.beam3.force0")
+        self.connect("cycle.node2.load_out0", "cycle.beam3.force1")
+        self.connect("cycle.node2.load_out1", "cycle.beam4.force0")
+        self.connect("cycle.node3.load_out0", "cycle.beam0.force1")
+        self.connect("cycle.node3.load_out1", "cycle.beam2.force1")
+        self.connect("cycle.node3.load_out2", "cycle.beam4.force1")
+        self.connect("cycle.beam0.beam_force", ["cycle.node0.load_in0", "cycle.node3.load_in0"])
+        self.connect("cycle.beam1.beam_force", ["cycle.node0.load_in1", "cycle.node1.load_in0"])
+        self.connect("cycle.beam2.beam_force", ["cycle.node1.load_in1", "cycle.node3.load_in1"])
+        self.connect("cycle.beam3.beam_force", ["cycle.node1.load_in2", "cycle.node2.load_in0"])
+        self.connect("cycle.beam4.beam_force", ["cycle.node2.load_in1", "cycle.node3.load_in2"])
         
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
@@ -107,8 +95,6 @@ class Truss_Analysis(Group):
         self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
         self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con5", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con6", ExecComp("con = 400 - abs(sigma)"))
 
         self.connect("indeps.L1", ["obj_cmp.L1"])
         self.connect("indeps.L2", ["obj_cmp.L2"])
@@ -117,15 +103,11 @@ class Truss_Analysis(Group):
         self.connect("cycle.beam2.sigma", ["con2.sigma"])
         self.connect("cycle.beam3.sigma", ["con3.sigma"])
         self.connect("cycle.beam4.sigma", ["con4.sigma"])
-        self.connect("cycle.beam5.sigma", ["con5.sigma"])
-        self.connect("cycle.beam6.sigma", ["con6.sigma"])
         self.connect("indeps.A0", ["cycle.beam0.A", "obj_cmp.A0"])
         self.connect("indeps.A1", ["cycle.beam1.A", "obj_cmp.A1"])
         self.connect("indeps.A2", ["cycle.beam2.A", "obj_cmp.A2"])
         self.connect("indeps.A3", ["cycle.beam3.A", "obj_cmp.A3"])
         self.connect("indeps.A4", ["cycle.beam4.A", "obj_cmp.A4"])
-        self.connect("indeps.A5", ["cycle.beam5.A", "obj_cmp.A5"])
-        self.connect("indeps.A6", ["cycle.beam6.A", "obj_cmp.A6"])
 
 if __name__ == "__main__":
 
@@ -140,16 +122,12 @@ if __name__ == "__main__":
     prob.model.add_design_var("indeps.A2", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A3", lower = 0.001, upper = 100)
     prob.model.add_design_var("indeps.A4", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A5", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A6", lower = 0.001, upper = 100)
     prob.model.add_objective("obj_cmp.obj")
     prob.model.add_constraint("con0.con", lower = 0)
     prob.model.add_constraint("con1.con", lower = 0)
     prob.model.add_constraint("con2.con", lower = 0)
     prob.model.add_constraint("con3.con", lower = 0)
     prob.model.add_constraint("con4.con", lower = 0)
-    prob.model.add_constraint("con5.con", lower = 0)
-    prob.model.add_constraint("con6.con", lower = 0)
 
     prob.setup(force_alloc_complex = True)
     # prob.check_partials(compact_print = True, method = "cs")
@@ -171,10 +149,6 @@ if __name__ == "__main__":
     print("beam3.beam_force", prob["cycle.beam3.beam_force"])
     print("A4 = ", prob["indeps.A4"])
     print("beam4.beam_force", prob["cycle.beam4.beam_force"])
-    print("A5 = ", prob["indeps.A5"])
-    print("beam5.beam_force", prob["cycle.beam5.beam_force"])
-    print("A6 = ", prob["indeps.A6"])
-    print("beam6.beam_force", prob["cycle.beam6.beam_force"])
     print("n0_x_reaction", prob["cycle.node0.reaction0"])
     print("n0_y_reaction", prob["cycle.node0.reaction1"])
     print("n1_x_reaction", prob["cycle.node1.reaction0"])
