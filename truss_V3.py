@@ -1,10 +1,10 @@
-import numpy as np 
+import numpy as np
 from openmdao.api import ExplicitComponent, ImplicitComponent, Problem, Group, IndepVarComp, ExecComp, NonlinearBlockGS, NewtonSolver, DirectSolver, ScipyOptimizeDriver
 
 class Beam(ImplicitComponent):
 
     def setup(self):
-        
+
         self.add_input("force0", val = 1., units = "N", desc = "Force on 0th end of beam")
         self.add_input("force1", val = 1., units = "N", desc = "Force on 1st end of beam")
         self.add_input("A", val = 1., units = "m**2", desc = "Cross sectional area of the beam")
@@ -21,7 +21,7 @@ class Beam(ImplicitComponent):
         residuals["beam_force"] = 0
         residuals["beam_force"] = inputs["force0"] - inputs["force1"]
         residuals['sigma'] = outputs['sigma'] - outputs['beam_force']/(1e6*inputs['A'])
-        print(self.pathname, "apply_nonlinear", outputs["beam_force"])
+        # print(self.pathname, "apply_nonlinear", outputs["beam_force"])
 
     def solve_nonlinear(self, inputs, outputs):
         outputs['sigma'] =  outputs['beam_force']/(1e6*inputs['A'])
@@ -33,12 +33,12 @@ class Beam(ImplicitComponent):
         partials["sigma", "beam_force"] = -1 / (1e6 * inputs["A"])
         partials["sigma", "sigma"] = 1
         partials["sigma", "A"] = outputs["beam_force"] / (1e6 * (inputs["A"]) ** 2)
-        print(self.pathname, "linearize", partials["sigma", "sigma"], partials["beam_force", "force0"])
+        # print(self.pathname, "linearize", partials["sigma", "sigma"], partials["beam_force", "force0"])
         # print(self.pathname, "linearize", outputs["beam_force"])
 
 
 class Node(ImplicitComponent):
- 
+
     def initialize(self):
         self.options.declare("n_loads", default = 2, desc = "Number of loads on node")
         self.options.declare("n_external_forces", default = 0, desc = "Number of external forces on node")
@@ -75,7 +75,7 @@ class Node(ImplicitComponent):
             self.declare_partials(n_reaction, "load_out*")
             self.declare_partials(n_reaction, "direction*")
             self.declare_partials(n_reaction, "reaction*")
-            
+
             if (self.options["n_external_forces"] > 0):
 
                 self.declare_partials(n_reaction, "force*")
@@ -85,11 +85,11 @@ class Node(ImplicitComponent):
             n_load_out = f"load_out{k}"
             self.declare_partials(n_load_out, "load_out*")
             self.declare_partials(n_load_out, "direction*")
-            
+
             if (self.options["n_reactions"] > 0):
 
                 self.declare_partials(n_load_out, "reaction*")
-            
+
             if (self.options["n_external_forces"] > 0):
 
                 self.declare_partials(n_load_out, "*ext")
@@ -105,26 +105,26 @@ class Node(ImplicitComponent):
     def apply_nonlinear(self, inputs, outputs, residuals):
 
         if (self.options["n_reactions"] > 0):
-            
+
             if (self.options["n_reactions"] > 1):
-                
+
                 res0 = "reaction0"
                 res1 = "reaction1"
-            
+
             else:
-                
+
                 res0 = "reaction0"
                 res1 = "load_out0"
 
         else:
             res0 = "load_out0"
             res1 = "load_out1"
-            
+
         residuals[res0] = 0
         residuals[res1] = 0
 
         for n in range(self.options["n_loads"]):
-            
+
             load = f"load_out{n}"
             direction = f"direction{n}_load"
             residuals[res0] += outputs[load] * np.cos(inputs[direction])
@@ -136,7 +136,7 @@ class Node(ImplicitComponent):
             direction = f"direction{m}_reaction"
             residuals[res0] += outputs[reaction] * np.cos(inputs[direction])
             residuals[res1] += outputs[reaction] * np.sin(inputs[direction])
-        
+
         for i in range(self.options["n_external_forces"]):
 
             force = f"force{i}_ext"
@@ -144,7 +144,7 @@ class Node(ImplicitComponent):
             residuals[res0] += inputs[force] * np.cos(inputs[direction])
             residuals[res1] += inputs[force] * np.sin(inputs[direction])
 
-        
+
         for j in range((2 - self.options["n_reactions"]), self.options["n_loads"]):
 
             load_in = f"load_in{j}"
@@ -155,14 +155,14 @@ class Node(ImplicitComponent):
     def linearize(self, inputs, outputs, partials):
 
         if (self.options["n_reactions"] > 0):
-            
+
             if (self.options["n_reactions"] > 1):
-                
+
                 res0 = "reaction0"
                 res1 = "reaction1"
-            
+
             else:
-                
+
                 res0 = "reaction0"
                 res1 = "load_out0"
 
@@ -190,7 +190,7 @@ class Node(ImplicitComponent):
             partials[res1, direction] = outputs[reaction] * np.cos(inputs[direction])
 
         for i in range(self.options["n_external_forces"]):
-            
+
             force = f"force{i}_ext"
             direction = f"direction{i}_ext"
             partials[res0, force] = np.cos(inputs[direction])

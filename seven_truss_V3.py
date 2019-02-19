@@ -1,14 +1,14 @@
 import math
-import numpy as np 
+import numpy as np
 from truss_V3 import Beam, Node
 from openmdao.api import ExplicitComponent, Problem, Group, IndepVarComp, ExecComp, NonlinearBlockGS, NewtonSolver, DirectSolver, ScipyOptimizeDriver, ArmijoGoldsteinLS
 
 class Truss_Analysis(Group):
-    
+
     def setup(self):
-        
+
         F = 4 * 10 ** 7
-        
+
         indeps = self.add_subsystem("indeps", IndepVarComp())
         indeps.add_output("n0_x_reaction_direction", 0, units = "rad", desc = "Direction of horizontal reaction force of pinned joint on node 0")
         indeps.add_output("n0_y_reaction_direction", math.pi / 2, units = "rad", desc = "Direction of vertical reaction force of pinned joint on node 0")
@@ -39,7 +39,7 @@ class Truss_Analysis(Group):
         indeps.add_output("A6", 1)
         indeps.add_output("L1")
         indeps.add_output("L2")
-        
+
         cycle = self.add_subsystem("cycle", Group())
         cycle.add_subsystem("node0", Node(n_loads = 2, n_reactions = 2))
         cycle.add_subsystem("node1", Node(n_loads = 3, n_reactions = 1))
@@ -53,8 +53,8 @@ class Truss_Analysis(Group):
         cycle.add_subsystem("beam4", Beam())
         cycle.add_subsystem("beam5", Beam())
         cycle.add_subsystem("beam6", Beam())
-    
-       
+
+
         #Node 0 connections
         self.connect("indeps.n0_x_reaction_direction", "cycle.node0.direction0_reaction")
         self.connect("indeps.n0_y_reaction_direction", "cycle.node0.direction1_reaction")
@@ -101,11 +101,12 @@ class Truss_Analysis(Group):
         self.connect("cycle.beam4.beam_force", ["cycle.node2.load_in1", "cycle.node3.load_in0"])#
         self.connect("cycle.beam5.beam_force", ["cycle.node3.load_in1", "cycle.node4.load_in2"])#
         self.connect("cycle.beam6.beam_force", ["cycle.node2.load_in2", "cycle.node4.load_in3"])#
-        
+
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
-        cycle.nonlinear_solver.options['solve_subsystems'] = True
+        # cycle.nonlinear_solver.options['solve_subsystems'] = True
         cycle.nonlinear_solver.options["iprint"] = 2
+        cycle.nonlinear_solver.options["maxiter"] = 0
         cycle.linear_solver = DirectSolver()
 
 
@@ -163,8 +164,14 @@ if __name__ == "__main__":
     # prob.check_partials(compact_print = True, method = "cs")
     # prob.check_totals()
     # exit()
-    prob.run_driver()
-    # prob.run_model()
+    # prob.run_driver()
+
+
+    #initial guesses
+    prob['cycle.nod0.load_out0'] =
+    prob.run_model()
+
+    prob.model.list_outputs(residuals=True)
 
 
 
