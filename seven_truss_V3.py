@@ -105,36 +105,36 @@ class Truss_Analysis(Group):
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
         cycle.nonlinear_solver.options['solve_subsystems'] = True
-        # cycle.nonlinear_solver.options["iprint"] = 2
+        cycle.nonlinear_solver.options["iprint"] = 2
         # cycle.nonlinear_solver.options["maxiter"] = 2
         cycle.linear_solver = DirectSolver()
 
 
         self.add_subsystem("obj_cmp", ExecComp("obj = L1 * (A0 + A1 + A2 + A4 + A5 + A6) + L2 * A3"))
-        self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con1", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con5", ExecComp("con = 400 - abs(sigma)"))
-        self.add_subsystem("con6", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con0", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con1", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con2", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con3", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con4", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con5", ExecComp("con = 400 - abs(sigma)"))
+        # self.add_subsystem("con6", ExecComp("con = 400 - abs(sigma)"))
 
-        self.connect("indeps.L1", ["obj_cmp.L1"])
-        self.connect("indeps.L2", ["obj_cmp.L2"])
-        self.connect("cycle.beam0.sigma", ["con0.sigma"])
-        self.connect("cycle.beam1.sigma", ["con1.sigma"])
-        self.connect("cycle.beam2.sigma", ["con2.sigma"])
-        self.connect("cycle.beam3.sigma", ["con3.sigma"])
-        self.connect("cycle.beam4.sigma", ["con4.sigma"])
-        self.connect("cycle.beam5.sigma", ["con5.sigma"])
-        self.connect("cycle.beam6.sigma", ["con6.sigma"])
-        self.connect("indeps.A0", ["cycle.beam0.A", "obj_cmp.A0"])
-        self.connect("indeps.A1", ["cycle.beam1.A", "obj_cmp.A1"])
-        self.connect("indeps.A2", ["cycle.beam2.A", "obj_cmp.A2"])
-        self.connect("indeps.A3", ["cycle.beam3.A", "obj_cmp.A3"])
-        self.connect("indeps.A4", ["cycle.beam4.A", "obj_cmp.A4"])
-        self.connect("indeps.A5", ["cycle.beam5.A", "obj_cmp.A5"])
-        self.connect("indeps.A6", ["cycle.beam6.A", "obj_cmp.A6"])
+        # self.connect("indeps.L1", ["obj_cmp.L1"])
+        # self.connect("indeps.L2", ["obj_cmp.L2"])
+        # self.connect("cycle.beam0.sigma", ["con0.sigma"])
+        # self.connect("cycle.beam1.sigma", ["con1.sigma"])
+        # self.connect("cycle.beam2.sigma", ["con2.sigma"])
+        # self.connect("cycle.beam3.sigma", ["con3.sigma"])
+        # self.connect("cycle.beam4.sigma", ["con4.sigma"])
+        # self.connect("cycle.beam5.sigma", ["con5.sigma"])
+        # self.connect("cycle.beam6.sigma", ["con6.sigma"])
+        # self.connect("indeps.A0", ["cycle.beam0.A", "obj_cmp.A0"])
+        # self.connect("indeps.A1", ["cycle.beam1.A", "obj_cmp.A1"])
+        # self.connect("indeps.A2", ["cycle.beam2.A", "obj_cmp.A2"])
+        # self.connect("indeps.A3", ["cycle.beam3.A", "obj_cmp.A3"])
+        # self.connect("indeps.A4", ["cycle.beam4.A", "obj_cmp.A4"])
+        # self.connect("indeps.A5", ["cycle.beam5.A", "obj_cmp.A5"])
+        # self.connect("indeps.A6", ["cycle.beam6.A", "obj_cmp.A6"])
 
 if __name__ == "__main__":
 
@@ -144,27 +144,27 @@ if __name__ == "__main__":
     prob.driver = ScipyOptimizeDriver()
     prob.driver.options["optimizer"] = "SLSQP"
 
-    prob.model.add_design_var("indeps.A0", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A1", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A2", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A3", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A4", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A5", lower = 0.001, upper = 100)
-    prob.model.add_design_var("indeps.A6", lower = 0.001, upper = 100)
-    prob.model.add_objective("obj_cmp.obj")
-    prob.model.add_constraint("con0.con", lower = 0)
-    prob.model.add_constraint("con1.con", lower = 0)
-    prob.model.add_constraint("con2.con", lower = 0)
-    prob.model.add_constraint("con3.con", lower = 0)
-    prob.model.add_constraint("con4.con", lower = 0)
-    prob.model.add_constraint("con5.con", lower = 0)
-    prob.model.add_constraint("con6.con", lower = 0)
+    # prob.model.add_design_var("indeps.A0", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A1", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A2", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A3", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A4", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A5", lower = 0.001, upper = 100)
+    # prob.model.add_design_var("indeps.A6", lower = 0.001, upper = 100)
+    # prob.model.add_objective("obj_cmp.obj")
+    # prob.model.add_constraint("con0.con", lower = 0)
+    # prob.model.add_constraint("con1.con", lower = 0)
+    # prob.model.add_constraint("con2.con", lower = 0)
+    # prob.model.add_constraint("con3.con", lower = 0)
+    # prob.model.add_constraint("con4.con", lower = 0)
+    # prob.model.add_constraint("con5.con", lower = 0)
+    # prob.model.add_constraint("con6.con", lower = 0)
 
     prob.setup(force_alloc_complex = True)
     # prob.check_partials(compact_print = True, method = "cs")
     # prob.check_totals()
     # exit()
-    prob.run_driver() #:)
+    # prob.run_driver() #:)
 
 
     #initial guesses
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     # prob["cycle.beam4.sigma"] = -4e1
     # prob["cycle.beam5.sigma"] = 4e1
     # prob["cycle.beam6.sigma"] = 2e1
-    # prob.run_model() #:)
+    prob.run_model() #:)
 
     prob.model.list_outputs(residuals=True)
 
