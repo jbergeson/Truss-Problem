@@ -19,7 +19,7 @@ class Beam(ImplicitComponent):
         self.declare_partials("beam_force", "beam_force")
 
     def apply_nonlinear(self, inputs, outputs, residuals):
-        residuals["beam_force"] = 2 * outputs["beam_force"]  + inputs["force0"] - inputs["force1"]
+        residuals["beam_force"] = inputs["force0"] - inputs["force1"]
         residuals['sigma'] = outputs['sigma'] - outputs['beam_force']/(1e6*inputs['A'])
 
     def solve_nonlinear(self, inputs, outputs):
@@ -31,8 +31,7 @@ class Beam(ImplicitComponent):
         partials["sigma", "beam_force"] = -1 / (1e6 * inputs["A"])
         partials["sigma", "sigma"] = 1
         partials["sigma", "A"] = outputs["beam_force"] / (1e6 * (inputs["A"]) ** 2)
-        partials["beam_force", "beam_force"] = 2
-        # partials["beam_force", "beam_force"] = inputs["force0"] - inputs["force1"]
+        partials["beam_force", "beam_force"] = outputs["sigma"]
 
 class Node(ImplicitComponent):
 
