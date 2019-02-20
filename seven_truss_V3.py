@@ -80,33 +80,33 @@ class Truss_Analysis(Group):
         self.connect("indeps.n4_beam5", "cycle.node4.direction2_load")
         self.connect("indeps.n4_beam6", "cycle.node4.direction3_load")
         #Inter-node connections
-        self.connect("cycle.node0.load_out0", "cycle.beam0.force0")#
-        self.connect("cycle.node0.load_out1", "cycle.beam1.force0")#
-        self.connect("cycle.node1.load_out0", "cycle.beam1.force1")#
-        self.connect("cycle.node1.load_out1", "cycle.beam2.force0")#
-        self.connect("cycle.node1.load_out2", "cycle.beam3.force0")#
-        self.connect("cycle.node2.load_out0", "cycle.beam2.force1")#
-        self.connect("cycle.node2.load_out1", "cycle.beam4.force0")#
-        self.connect("cycle.node2.load_out2", "cycle.beam6.force0")#
-        self.connect("cycle.node3.load_out0", "cycle.beam4.force1")#
-        self.connect("cycle.node3.load_out1", "cycle.beam5.force0")#
-        self.connect("cycle.node4.load_out0", "cycle.beam0.force1")#
-        self.connect("cycle.node4.load_out1", "cycle.beam3.force1")#
-        self.connect("cycle.node4.load_out2", "cycle.beam5.force1")#
-        self.connect("cycle.node4.load_out3", "cycle.beam6.force1")#
-        self.connect("cycle.beam0.beam_force", ["cycle.node0.load_in0", "cycle.node4.load_in0"])#
-        self.connect("cycle.beam1.beam_force", ["cycle.node0.load_in1", "cycle.node1.load_in0"])#
-        self.connect("cycle.beam2.beam_force", ["cycle.node1.load_in1", "cycle.node2.load_in0"])#
-        self.connect("cycle.beam3.beam_force", ["cycle.node1.load_in2", "cycle.node4.load_in1"])#
-        self.connect("cycle.beam4.beam_force", ["cycle.node2.load_in1", "cycle.node3.load_in0"])#
-        self.connect("cycle.beam5.beam_force", ["cycle.node3.load_in1", "cycle.node4.load_in2"])#
-        self.connect("cycle.beam6.beam_force", ["cycle.node2.load_in2", "cycle.node4.load_in3"])#
+        self.connect("cycle.node0.load_out0", "cycle.beam0.force0")
+        self.connect("cycle.node0.load_out1", "cycle.beam1.force0")
+        self.connect("cycle.node1.load_out0", "cycle.beam1.force1")
+        self.connect("cycle.node1.load_out1", "cycle.beam2.force0")
+        self.connect("cycle.node1.load_out2", "cycle.beam3.force0")
+        self.connect("cycle.node2.load_out0", "cycle.beam2.force1")
+        self.connect("cycle.node2.load_out1", "cycle.beam4.force0")
+        self.connect("cycle.node2.load_out2", "cycle.beam6.force0")
+        self.connect("cycle.node3.load_out0", "cycle.beam4.force1")
+        self.connect("cycle.node3.load_out1", "cycle.beam5.force0")
+        self.connect("cycle.node4.load_out0", "cycle.beam0.force1")
+        self.connect("cycle.node4.load_out1", "cycle.beam3.force1")
+        self.connect("cycle.node4.load_out2", "cycle.beam5.force1")
+        self.connect("cycle.node4.load_out3", "cycle.beam6.force1")
+        self.connect("cycle.beam0.beam_force", ["cycle.node0.load_in0", "cycle.node4.load_in0"])
+        self.connect("cycle.beam1.beam_force", ["cycle.node0.load_in1", "cycle.node1.load_in0"])
+        self.connect("cycle.beam2.beam_force", ["cycle.node1.load_in1", "cycle.node2.load_in0"])
+        self.connect("cycle.beam3.beam_force", ["cycle.node1.load_in2", "cycle.node4.load_in1"])
+        self.connect("cycle.beam4.beam_force", ["cycle.node2.load_in1", "cycle.node3.load_in0"])
+        self.connect("cycle.beam5.beam_force", ["cycle.node3.load_in1", "cycle.node4.load_in2"])
+        self.connect("cycle.beam6.beam_force", ["cycle.node2.load_in2", "cycle.node4.load_in3"])
 
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
-        # cycle.nonlinear_solver.options['solve_subsystems'] = True
+        cycle.nonlinear_solver.options['solve_subsystems'] = True
         cycle.nonlinear_solver.options["iprint"] = 2
-        cycle.nonlinear_solver.options["maxiter"] = 0
+        # cycle.nonlinear_solver.options["maxiter"] = 0
         cycle.linear_solver = DirectSolver()
 
 
@@ -164,12 +164,35 @@ if __name__ == "__main__":
     # prob.check_partials(compact_print = True, method = "cs")
     # prob.check_totals()
     # exit()
-    # prob.run_driver()
+    # prob.run_driver() #:)
 
 
     #initial guesses
-    prob['cycle.nod0.load_out0'] =
-    prob.run_model()
+    prob['cycle.node0.load_out0'] = 4e7 * (3**.5 + 2) / 2
+    prob['cycle.node0.load_out1'] = 4e7
+    prob['cycle.node0.reaction0'] = -4e7 * (3**.5 + 2) / 2 
+    prob['cycle.node0.reaction1'] = 4e7
+    prob['cycle.node1.load_out0'] = 4e7
+    prob['cycle.node1.load_out1'] = -34641016 
+    prob['cycle.node1.load_out2'] = -56568542
+    prob['cycle.node1.reaction0'] = 4e7 * (3**.5 + 2) / 2
+    prob['cycle.node2.load_out0'] = -34641016
+    prob['cycle.node2.load_out1'] = -4e7
+    prob['cycle.node2.load_out2'] = 2e7
+    prob['cycle.node3.load_out0'] = -4e7
+    prob['cycle.node3.load_out1'] = 4e7
+    prob['cycle.node4.load_out0'] = 4e7 * (3**.5 + 2) / 2
+    prob['cycle.node4.load_out1'] = -56568542
+    prob['cycle.node4.load_out2'] = 4e7
+    prob['cycle.node4.load_out3'] = 2e7
+    prob["cycle.beam0.beam_force"] = 4e7 * (3**.5 + 2) / 2
+    prob["cycle.beam1.beam_force"] = 4e7
+    prob["cycle.beam2.beam_force"] = -34641016
+    prob["cycle.beam3.beam_force"] = -56568542 
+    prob["cycle.beam4.beam_force"] = -4e7
+    prob["cycle.beam5.beam_force"] = 4e7
+    prob["cycle.beam6.beam_force"] = 2e7
+    prob.run_model() #:)
 
     prob.model.list_outputs(residuals=True)
 

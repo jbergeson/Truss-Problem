@@ -16,26 +16,25 @@ class Beam(ImplicitComponent):
         self.declare_partials("sigma", "beam_force")
         self.declare_partials("sigma", "sigma")
         self.declare_partials("sigma", "A")
+        self.declare_partials("*", "*")
 
     def apply_nonlinear(self, inputs, outputs, residuals):
         residuals["beam_force"] = 0
         residuals["beam_force"] = inputs["force0"] - inputs["force1"]
         residuals['sigma'] = outputs['sigma'] - outputs['beam_force']/(1e6*inputs['A'])
-        # print(self.pathname, "apply_nonlinear", outputs["beam_force"])
+        # print(self.pathname, inputs["force0"], inputs["force1"], outputs["sigma"], outputs["beam_force"], inputs["A"])
 
     def solve_nonlinear(self, inputs, outputs):
         outputs['sigma'] =  outputs['beam_force']/(1e6*inputs['A'])
-        print(self.pathname, "solve_nonlinear", outputs["beam_force"])
+        # print(self.pathname, outputs["sigma"], outputs["beam_force"], inputs["A"])
 
     def linearize(self, inputs, outputs, partials):
         partials["beam_force", "force0"] = 1
         partials["beam_force", "force1"] = -1
         partials["sigma", "beam_force"] = -1 / (1e6 * inputs["A"])
         partials["sigma", "sigma"] = 1
-        partials["sigma", "A"] = outputs["beam_force"] / (1e6 * (inputs["A"]) ** 2)
-        # print(self.pathname, "linearize", partials["sigma", "sigma"], partials["beam_force", "force0"])
-        # print(self.pathname, "linearize", outputs["beam_force"])
-
+        partials["sigma", "A"] = outputs["beam_force"] / ((1e6 * inputs["A"]) ** 2)
+        # print(self.pathname, partials["beam_force", "force0"], partials["beam_force", "force1"], partials["sigma", "beam_force"], partials["sigma", "sigma"], partials["sigma", "A"])
 
 class Node(ImplicitComponent):
 
@@ -150,7 +149,6 @@ class Node(ImplicitComponent):
             load_in = f"load_in{j}"
             load_out = f"load_out{j}"
             residuals[load_out] = outputs[load_out] - inputs[load_in]
-            # print(self.pathname, load_out,  outputs[load_out] - inputs[load_in], residuals[load_out])
 
     def linearize(self, inputs, outputs, partials):
 
