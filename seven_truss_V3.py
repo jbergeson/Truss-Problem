@@ -105,8 +105,8 @@ class Truss_Analysis(Group):
         cycle.nonlinear_solver = NewtonSolver()
         cycle.nonlinear_solver.options['atol'] = 1e-7
         cycle.nonlinear_solver.options['solve_subsystems'] = True
-        cycle.nonlinear_solver.options["iprint"] = 2
-        # cycle.nonlinear_solver.options["maxiter"] = 0
+        # cycle.nonlinear_solver.options["iprint"] = 2
+        # cycle.nonlinear_solver.options["maxiter"] = 2
         cycle.linear_solver = DirectSolver()
 
 
@@ -164,35 +164,42 @@ if __name__ == "__main__":
     # prob.check_partials(compact_print = True, method = "cs")
     # prob.check_totals()
     # exit()
-    # prob.run_driver() #:)
+    prob.run_driver() #:)
 
 
     #initial guesses
-    prob['cycle.node0.load_out0'] = 4e7 * (3**.5 + 2) / 2
-    prob['cycle.node0.load_out1'] = 4e7
-    prob['cycle.node0.reaction0'] = -4e7 * (3**.5 + 2) / 2 
-    prob['cycle.node0.reaction1'] = 4e7
-    prob['cycle.node1.load_out0'] = 4e7
-    prob['cycle.node1.load_out1'] = -34641016 
-    prob['cycle.node1.load_out2'] = -56568542
-    prob['cycle.node1.reaction0'] = 4e7 * (3**.5 + 2) / 2
-    prob['cycle.node2.load_out0'] = -34641016
-    prob['cycle.node2.load_out1'] = -4e7
-    prob['cycle.node2.load_out2'] = 2e7
-    prob['cycle.node3.load_out0'] = -4e7
-    prob['cycle.node3.load_out1'] = 4e7
-    prob['cycle.node4.load_out0'] = 4e7 * (3**.5 + 2) / 2
-    prob['cycle.node4.load_out1'] = -56568542
-    prob['cycle.node4.load_out2'] = 4e7
-    prob['cycle.node4.load_out3'] = 2e7
-    prob["cycle.beam0.beam_force"] = 4e7 * (3**.5 + 2) / 2
-    prob["cycle.beam1.beam_force"] = 4e7
-    prob["cycle.beam2.beam_force"] = -34641016
-    prob["cycle.beam3.beam_force"] = -56568542 
-    prob["cycle.beam4.beam_force"] = -4e7
-    prob["cycle.beam5.beam_force"] = 4e7
-    prob["cycle.beam6.beam_force"] = 2e7
-    prob.run_model() #:)
+    # prob['cycle.node0.load_out0'] = 4e7 * (3**.5 + 2) / 2
+    # prob['cycle.node0.load_out1'] = 4e7
+    # prob['cycle.node0.reaction0'] = -4e7 * (3**.5 + 2) / 2 
+    # prob['cycle.node0.reaction1'] = 4e7
+    # prob['cycle.node1.load_out0'] = 4e7
+    # prob['cycle.node1.load_out1'] = -34641016 
+    # prob['cycle.node1.load_out2'] = -56568542
+    # prob['cycle.node1.reaction0'] = 4e7 * (3**.5 + 2) / 2
+    # prob['cycle.node2.load_out0'] = -34641016
+    # prob['cycle.node2.load_out1'] = -4e7
+    # prob['cycle.node2.load_out2'] = 2e7
+    # prob['cycle.node3.load_out0'] = -4e7
+    # prob['cycle.node3.load_out1'] = 4e7
+    # prob['cycle.node4.load_out0'] = 4e7 * (3**.5 + 2) / 2
+    # prob['cycle.node4.load_out1'] = -56568542
+    # prob['cycle.node4.load_out2'] = 4e7
+    # prob['cycle.node4.load_out3'] = 2e7
+    # prob["cycle.beam0.beam_force"] = 4e7 * (3**.5 + 2) / 2
+    # prob["cycle.beam1.beam_force"] = 4e7
+    # prob["cycle.beam2.beam_force"] = -34641016
+    # prob["cycle.beam3.beam_force"] = -56568542 
+    # prob["cycle.beam4.beam_force"] = -4e7
+    # prob["cycle.beam5.beam_force"] = 4e7
+    # prob["cycle.beam6.beam_force"] = 2e7
+    # prob["cycle.beam0.sigma"] = 4e1 * (3**.5 + 2) / 2
+    # prob["cycle.beam1.sigma"] = 4e1
+    # prob["cycle.beam2.sigma"] = -34.641016
+    # prob["cycle.beam3.sigma"] = -56.568542 
+    # prob["cycle.beam4.sigma"] = -4e1
+    # prob["cycle.beam5.sigma"] = 4e1
+    # prob["cycle.beam6.sigma"] = 2e1
+    # prob.run_model() #:)
 
     prob.model.list_outputs(residuals=True)
 
